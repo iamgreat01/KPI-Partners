@@ -1,0 +1,271 @@
+[cloudera@quickstart ~]$ hive
+OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=512M; support was removed in 8.0
+OpenJDK 64-Bit Server VM warning: Using incremental CMS is deprecated and will likely be removed in a future release
+OpenJDK 64-Bit Server VM warning: ignoring option MaxPermSize=512M; support was removed in 8.0
+
+Logging initialized using configuration in jar:file:/usr/lib/hive/lib/hive-common-1.1.0-cdh5.13.0.jar!/hive-log4j.properties
+WARNING: Hive CLI is deprecated and migration to Beeline is recommended.
+hive> show databases;
+OK
+default
+example
+test
+Time taken: 3.07 seconds, Fetched: 3 row(s)
+hive> use example;
+OK
+Time taken: 0.041 seconds
+hive> show tables;
+OK
+kpi1
+Time taken: 0.046 seconds, Fetched: 1 row(s)
+hive> select * from kpi1;
+OK
+1	John	2000.0
+Time taken: 0.777 seconds, Fetched: 1 row(s)
+hive> describe kpi1;
+OK
+id                  	int                 	                    
+name                	string              	                    
+sal                 	float               	                    
+Time taken: 0.153 seconds, Fetched: 3 row(s)
+hive> insert into kpi1 values(2, Edward, 3000);
+FAILED: SemanticException [Error 10293]: Unable to create temp file for insert values Expression of type TOK_TABLE_OR_COL not supported in insert/values
+hive> insert into kpi1 values(2, 'Edward', 3000);
+Query ID = cloudera_20220111210909_4b021f20-b651-42cb-ba24-c2fd6aee3d70
+Total jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1641963469984_0001, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1641963469984_0001/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1641963469984_0001
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 0
+2022-01-11 21:09:38,395 Stage-1 map = 0%,  reduce = 0%
+2022-01-11 21:09:48,046 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 2.75 sec
+MapReduce Total cumulative CPU time: 2 seconds 750 msec
+Ended Job = job_1641963469984_0001
+Stage-4 is selected by condition resolver.
+Stage-3 is filtered out by condition resolver.
+Stage-5 is filtered out by condition resolver.
+Moving data to: hdfs://quickstart.cloudera:8020/user/hive/warehouse/example.db/kpi1/.hive-staging_hive_2022-01-11_21-09-17_048_970878436689714439-1/-ext-10000
+Loading data to table example.kpi1
+Table example.kpi1 stats: [numFiles=2, numRows=2, totalSize=30, rawDataSize=28]
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 1   Cumulative CPU: 2.75 sec   HDFS Read: 4283 HDFS Write: 84 SUCCESS
+Total MapReduce CPU Time Spent: 2 seconds 750 msec
+OK
+Time taken: 33.796 seconds
+hive> select * from kpi1;
+OK
+1	John	2000.0
+2	Edward	3000.0
+Time taken: 0.12 seconds, Fetched: 2 row(s)
+hive> insert into kpi1 values(3, 'Richard', 2500);
+Query ID = cloudera_20220111211010_54972002-8ba3-49e1-ae5b-4fd5a994ea51
+Total jobs = 3
+Launching Job 1 out of 3
+Number of reduce tasks is set to 0 since there's no reduce operator
+Starting Job = job_1641963469984_0002, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1641963469984_0002/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1641963469984_0002
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 0
+2022-01-11 21:10:36,321 Stage-1 map = 0%,  reduce = 0%
+2022-01-11 21:10:45,471 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 3.0 sec
+MapReduce Total cumulative CPU time: 3 seconds 0 msec
+Ended Job = job_1641963469984_0002
+Stage-4 is selected by condition resolver.
+Stage-3 is filtered out by condition resolver.
+Stage-5 is filtered out by condition resolver.
+Moving data to: hdfs://quickstart.cloudera:8020/user/hive/warehouse/example.db/kpi1/.hive-staging_hive_2022-01-11_21-10-24_550_6175996605541859441-1/-ext-10000
+Loading data to table example.kpi1
+Table example.kpi1 stats: [numFiles=3, numRows=3, totalSize=47, rawDataSize=44]
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 1   Cumulative CPU: 3.0 sec   HDFS Read: 4289 HDFS Write: 85 SUCCESS
+Total MapReduce CPU Time Spent: 3 seconds 0 msec
+OK
+Time taken: 22.428 seconds
+hive> select * from kpi1;
+OK
+1	John	2000.0
+2	Edward	3000.0
+3	Richard	2500.0
+Time taken: 0.083 seconds, Fetched: 3 row(s)
+hive> alter table kpi1 add job varchar(20);
+NoViableAltException(27@[])
+	at org.apache.hadoop.hive.ql.parse.HiveParser.alterTableStatementSuffix(HiveParser.java:7808)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.alterStatement(HiveParser.java:7190)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.ddlStatement(HiveParser.java:2602)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.execStatement(HiveParser.java:1589)
+	at org.apache.hadoop.hive.ql.parse.HiveParser.statement(HiveParser.java:1065)
+	at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:201)
+	at org.apache.hadoop.hive.ql.parse.ParseDriver.parse(ParseDriver.java:166)
+	at org.apache.hadoop.hive.ql.Driver.compile(Driver.java:522)
+	at org.apache.hadoop.hive.ql.Driver.compileInternal(Driver.java:1356)
+	at org.apache.hadoop.hive.ql.Driver.runInternal(Driver.java:1473)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1285)
+	at org.apache.hadoop.hive.ql.Driver.run(Driver.java:1275)
+	at org.apache.hadoop.hive.cli.CliDriver.processLocalCmd(CliDriver.java:226)
+	at org.apache.hadoop.hive.cli.CliDriver.processCmd(CliDriver.java:175)
+	at org.apache.hadoop.hive.cli.CliDriver.processLine(CliDriver.java:389)
+	at org.apache.hadoop.hive.cli.CliDriver.executeDriver(CliDriver.java:781)
+	at org.apache.hadoop.hive.cli.CliDriver.run(CliDriver.java:699)
+	at org.apache.hadoop.hive.cli.CliDriver.main(CliDriver.java:634)
+	at sun.reflect.NativeMethodAccessorImpl.invoke0(Native Method)
+	at sun.reflect.NativeMethodAccessorImpl.invoke(NativeMethodAccessorImpl.java:62)
+	at sun.reflect.DelegatingMethodAccessorImpl.invoke(DelegatingMethodAccessorImpl.java:43)
+	at java.lang.reflect.Method.invoke(Method.java:498)
+	at org.apache.hadoop.util.RunJar.run(RunJar.java:221)
+	at org.apache.hadoop.util.RunJar.main(RunJar.java:136)
+FAILED: ParseException line 1:17 cannot recognize input near 'add' 'job' 'varchar' in alter table statement
+hive> alter table kpi1 add columns (job varchar(20));
+OK
+Time taken: 0.181 seconds
+hive> describe kpi1;
+OK
+id                  	int                 	                    
+name                	string              	                    
+sal                 	float               	                    
+job                 	varchar(20)         	                    
+Time taken: 0.111 seconds, Fetched: 4 row(s)
+hive> alter table kpi1 rename to new_emp;
+OK
+Time taken: 0.159 seconds
+hive> describe kpi1;
+FAILED: SemanticException [Error 10001]: Table not found kpi1
+hive> describe new_emp;
+OK
+id                  	int                 	                    
+name                	string              	                    
+sal                 	float               	                    
+job                 	varchar(20)         	                    
+Time taken: 0.087 seconds, Fetched: 4 row(s)
+hive> select * from new_emp;
+OK
+1	John	2000.0	NULL
+2	Edward	3000.0	NULL
+3	Richard	2500.0	NULL
+Time taken: 0.094 seconds, Fetched: 3 row(s)
+
+
+hive> update new_emp set job='CLERK' where id in (1,2,3);
+FAILED: SemanticException [Error 10294]: Attempt to do update or delete using transaction manager that does not support these operations.
+
+hive> update new_emp set job='CLERK' values[job = 'CLERK'] where id in(1);
+FAILED: ParseException line 1:31 missing EOF at 'values' near ''CLERK''
+
+hive> update new_emp set job='CLERK' where id in(1);
+FAILED: SemanticException [Error 10294]: Attempt to do update or delete using transaction manager that does not support these operations.
+
+hive> update new_emp set job='CLERK' where id=1;
+FAILED: SemanticException [Error 10294]: Attempt to do update or delete using transaction manager that does not support these operations.
+
+hive> delete from new_emp where id=1;
+FAILED: SemanticException [Error 10294]: Attempt to do update or delete using transaction manager that does not support these operations.
+
+
+hive> create view v1 as select id, job from new_emp;
+OK
+Time taken: 0.335 seconds
+hive> select * from cat;
+FAILED: SemanticException [Error 10001]: Line 1:14 Table not found 'cat'
+hive> show tables;
+OK
+new_emp
+v1
+values__tmp__table__2
+values__tmp__table__3
+Time taken: 0.066 seconds, Fetched: 4 row(s)
+hive> select * from v1;
+OK
+1	NULL
+2	NULL
+3	NULL
+Time taken: 0.36 seconds, Fetched: 3 row(s)
+
+
+hive> select * from v1;
+OK
+1	NULL
+2	NULL
+3	NULL
+Time taken: 0.211 seconds, Fetched: 3 row(s)
+hive> describe v1;
+OK
+id                  	int                 	                    
+job                 	varchar(20)         	                    
+Time taken: 0.194 seconds, Fetched: 2 row(s)
+hive> drop view v1 if exists;
+FAILED: ParseException line 1:13 missing EOF at 'if' near 'v1'
+hive> drop view if exists v1;
+OK
+Time taken: 0.552 seconds
+hive> show tables;
+OK
+new_emp
+values__tmp__table__2
+values__tmp__table__3
+Time taken: 0.064 seconds, Fetched: 3 row(s)
+
+
+hive> select * from new_emp order by 2;
+Query ID = cloudera_20220111213939_a59609a7-36e7-4e6e-8c0b-4ad10489a145
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks determined at compile time: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1641963469984_0003, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1641963469984_0003/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1641963469984_0003
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2022-01-11 21:40:34,262 Stage-1 map = 0%,  reduce = 0%
+2022-01-11 21:40:56,901 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 4.01 sec
+2022-01-11 21:41:16,831 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 10.35 sec
+MapReduce Total cumulative CPU time: 10 seconds 350 msec
+Ended Job = job_1641963469984_0003
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 10.35 sec   HDFS Read: 8366 HDFS Write: 56 SUCCESS
+Total MapReduce CPU Time Spent: 10 seconds 350 msec
+OK
+3	Richard	2500.0	NULL
+2	Edward	3000.0	NULL
+1	John	2000.0	NULL
+
+
+hive> select * from new_emp group by sal;
+FAILED: SemanticException [Error 10025]: Expression not in GROUP BY key id
+hive> select * from new_emp e group by e.sal;
+FAILED: SemanticException [Error 10025]: Expression not in GROUP BY key id
+hive> select * from new_emp group by id;
+FAILED: SemanticException [Error 10025]: Expression not in GROUP BY key name
+hive> select * from new_emp group by id, name;
+FAILED: SemanticException [Error 10025]: Expression not in GROUP BY key sal
+hive> select * from new_emp group by id, name,sal;
+FAILED: SemanticException [Error 10025]: Expression not in GROUP BY key job
+hive> select * from new_emp group by id, name,sal, job;
+Query ID = cloudera_20220111214747_b7cdd7cb-aee8-4723-b18f-7595a669fbf5
+Total jobs = 1
+Launching Job 1 out of 1
+Number of reduce tasks not specified. Estimated from input data size: 1
+In order to change the average load for a reducer (in bytes):
+  set hive.exec.reducers.bytes.per.reducer=<number>
+In order to limit the maximum number of reducers:
+  set hive.exec.reducers.max=<number>
+In order to set a constant number of reducers:
+  set mapreduce.job.reduces=<number>
+Starting Job = job_1641963469984_0005, Tracking URL = http://quickstart.cloudera:8088/proxy/application_1641963469984_0005/
+Kill Command = /usr/lib/hadoop/bin/hadoop job  -kill job_1641963469984_0005
+Hadoop job information for Stage-1: number of mappers: 1; number of reducers: 1
+2022-01-11 21:48:21,221 Stage-1 map = 0%,  reduce = 0%
+2022-01-11 21:48:43,596 Stage-1 map = 100%,  reduce = 0%, Cumulative CPU 4.67 sec
+2022-01-11 21:49:01,139 Stage-1 map = 100%,  reduce = 100%, Cumulative CPU 10.67 sec
+MapReduce Total cumulative CPU time: 10 seconds 670 msec
+Ended Job = job_1641963469984_0005
+MapReduce Jobs Launched: 
+Stage-Stage-1: Map: 1  Reduce: 1   Cumulative CPU: 10.67 sec   HDFS Read: 9133 HDFS Write: 78 SUCCESS
+Total MapReduce CPU Time Spent: 10 seconds 670 msec
+OK
+1	John	2000.0	NULL
+2	Edward	3000.0	NULL
+3	Richard	2500.0	NULL
+4	Mathew	2000.0	CLERK
