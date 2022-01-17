@@ -1,0 +1,238 @@
+[cloudera@quickstart ~]$ ./hbase shell
+bash: ./hbase: No such file or directory
+[cloudera@quickstart ~]$ shell
+bash: shell: command not found
+[cloudera@quickstart ~]$ hbase shell
+OpenJDK 64-Bit Server VM warning: Using incremental CMS is deprecated and will likely be removed in a future release
+22/01/06 02:03:27 INFO Configuration.deprecation: hadoop.native.lib is deprecated. Instead, use io.native.lib.available
+HBase Shell; enter 'help<RETURN>' for list of supported commands.
+Type "exit<RETURN>" to leave the HBase Shell
+Version 1.2.0-cdh5.13.0, rUnknown, Wed Oct  4 11:16:18 PDT 2017
+
+hbase(main):001:0> create 'student', 'college data', 'personel data'
+0 row(s) in 1.6130 seconds
+
+=> Hbase::Table - student
+hbase(main):002:0> list
+TABLE                                                                           
+student                                                                         
+1 row(s) in 0.0260 seconds
+
+=> ["student"]
+hbase(main):003:0> put 'student', '1', 'college data: college', 'pigce'
+0 row(s) in 0.1840 seconds
+
+hbase(main):004:0> get 'student', '1'
+COLUMN                                                 CELL                                                                                                                                                         
+ college data: college                                 timestamp=1641463696956, value=pigce                                                                                                                         
+1 row(s) in 0.0660 seconds
+
+hbase(main):005:0> scan 'student'
+ROW                                                    COLUMN+CELL                                                                                                                                                  
+ 1                                                     column=college data: college, timestamp=1641463696956, value=pigce                                                                                           
+1 row(s) in 0.0680 seconds
+
+hbase(main):006:0> put 'student', '1', 'personel data: name', 'Pratik'
+0 row(s) in 0.0880 seconds
+
+hbase(main):007:0> scan 'student'
+ROW                                                    COLUMN+CELL                                                                                                                                                  
+ 1                                                     column=college data: college, timestamp=1641463696956, value=pigce                                                                                           
+ 1                                                     column=personel data: name, timestamp=1641463845621, value=Pratik                                                                                            
+1 row(s) in 0.0160 seconds
+
+hbase(main):008:0> put 'student', '1', 'college data: college', 'pce'
+0 row(s) in 0.0120 seconds
+
+hbase(main):009:0> scan 'student'
+ROW                                                    COLUMN+CELL                                                                                                                                                  
+ 1                                                     column=college data: college, timestamp=1641463970841, value=pce                                                                                             
+ 1                                                     column=personel data: name, timestamp=1641463845621, value=Pratik                                                                                            
+1 row(s) in 0.0240 seconds
+
+hbase(main):010:0> put 'student', '1', 'personel data: name, age', 'Pratik, 24'
+0 row(s) in 0.0130 seconds
+
+hbase(main):011:0> scan 'student'
+ROW                                                    COLUMN+CELL                                                                                                                                                  
+ 1                                                     column=college data: college, timestamp=1641463970841, value=pce                                                                                             
+ 1                                                     column=personel data: name, timestamp=1641463845621, value=Pratik                                                                                            
+ 1                                                     column=personel data: name, age, timestamp=1641464108951, value=Pratik, 24                                                                                   
+1 row(s) in 0.0130 seconds
+-------------------------------------==================================================-------------------------------------------
+#importing values from csv file to hbase table:-
+1. In hbase create table 'emp', 'personel_data'
+2. In hdfs create .csv file ==>> vi sample_kpi.csv
+[cloudera@quickstart ~]$ cat sample_kpi.csv
+sam,24,m
+emma,21,f
+richard,23,m
+susane,22,f
+
+3. Now import csv file to hbase table: 
+Run this cmd in hdfs prompt==>> hbase org.apache.hadoop.hbase.mapreduce.ImportTsv -Dimporttsv.separator="," -Dimporttsv.columns="HBASE_ROW_KEY,personel_data:name,personel_data:age,personel_data:gender" emp /user/cloudera/sample_kpi.csv
+
+
+4. If we want to insert rows individually then write:
+put 'emp', '1', 'personel_data: name, age, gender, 'Emily, 24, Female'
+
+5. If we want to drop this table then a simple drop 'emp' won't work here!
+We first need to disbale 'emp' and then drop 'emp'.
+For ex-) hbase(main):018:0> list
+TABLE                                                                                                                                                                                                               
+collegue                                                                                                                                                                                                            
+emp                                                                                                                                                                                                                 
+student                                                                                                                                                                                                             
+3 row(s) in 0.0180 seconds
+
+=> ["collegue", "emp", "student"]
+hbase(main):019:0> drop 'student'
+
+ERROR: Table student is enabled. Disable it first.
+
+Drop the named table. Table must first be disabled:
+  hbase> drop 't1'
+  hbase> drop 'ns1:t1'
+
+hbase(main):023:0> disable 'student'
+0 row(s) in 2.2640 seconds
+
+hbase(main):024:0> drop 'student'
+0 row(s) in 1.2630 seconds
+
+hbase(main):025:0> scan 'student'
+ROW                                                    COLUMN+CELL                                                                                                                                                  
+
+ERROR: Unknown table student!
+
+
+6. Describe table
+describe 'student'
+
+7. How to make a table READONLY.
+hbase(main):024:0> alter 'student',{METHOD=>'table_att', READONLY=>true}
+Updating all regions with the new schema...
+1/1 regions updated.
+Done.
+0 row(s) in 2.2310 seconds
+
+hbase(main):025:0> scan 'student'
+ROW                                                    COLUMN+CELL                                                                                                                                                  
+ 1                                                     column=personel_data: name, subject, marks, timestamp=1641798112937, value=Sam, Math, 78                                                                     
+ 2                                                     column=personel_data: name, subject, marks, timestamp=1641798200437, value=Emma, English, 86                                                                 
+ 3                                                     column=personel_data: name, address, timestamp=1641806241959, value=Edward, Mumbai                                                                           
+3 row(s) in 0.1030 seconds
+
+
+hbase(main):027:0> put 'student', '4', 'personel_data: name, class, subject, marks', 'Henry, IV, Science, 72'
+ERROR: Failed 1 action: org.apache.hadoop.hbase.DoNotRetryIOException: region is read only
+
+8. Unset the READONLY mode
+hbase(main):002:0> alter 'student', {METHOD=>'table_att_unset', NAME=>READONLY}
+Updating all regions with the new schema...
+1/1 regions updated.
+Done.
+0 row(s) in 2.2980 seconds
+
+hbase(main):014:0> put 'student', '4', 'personel_data: name, class, subject, marks', 'Henry, IV, Science, 72'
+0 row(s) in 0.1230 seconds
+
+hbase(main):015:0> scan 'student'
+ROW                                                    COLUMN+CELL                                                                                                                                                  
+ 1                                                     column=personel_data: name, subject, marks, timestamp=1641798112937, value=Sam, Math, 78                                                                     
+ 2                                                     column=personel_data: name, subject, marks, timestamp=1641798200437, value=Emma, English, 86                                                                 
+ 3                                                     column=personel_data: name, address, timestamp=1641806241959, value=Edward, Mumbai                                                                           
+ 4                                                     column=personel_data: name, class, subject, marks, timestamp=1641807759045, value=Henry, IV, Science, 72                                                     
+4 row(s) in 0.0120 seconds
+
+
+9. Deleting data
+hbase(main):018:0> put 'student', '4', 'personel_data:subject', 'English'
+0 row(s) in 0.0350 seconds
+
+hbase(main):019:0> scan 'student'
+ROW                                                    COLUMN+CELL                                                                                                                                                  
+ 1                                                     column=personel_data: name, subject, marks, timestamp=1641798112937, value=Sam, Math, 78                                                                     
+ 2                                                     column=personel_data: name, subject, marks, timestamp=1641798200437, value=Emma, English, 86                                                                 
+ 3                                                     column=personel_data: name, address, timestamp=1641806241959, value=Edward, Mumbai                                                                           
+ 4                                                     column=personel_data: name, class, subject, marks, timestamp=1641807759045, value=Henry, IV, Science, 72                                                     
+ 4                                                     column=personel_data:subject, timestamp=1641808158973, value=English                                                                                         
+4 row(s) in 0.0480 seconds
+
+hbase(main):020:0> delete 'student', '4', 'personel_data:subject', 'English'
+
+hbase(main):002:0> deleteall 'student', '4'
+0 row(s) in 0.0440 seconds
+
+hbase(main):003:0> scan 'student'
+ROW                                                   COLUMN+CELL                                                                                                                                                
+ 1                                                    column=personel_data: name, subject, marks, timestamp=1641798112937, value=Sam, Math, 78                                                                   
+ 2                                                    column=personel_data: name, subject, marks, timestamp=1641798200437, value=Emma, English, 86                                                               
+ 3                                                    column=personel_data: name, address, timestamp=1641806241959, value=Edward, Mumbai                                                                         
+3 row(s) in 0.0150 seconds
+
+
+10. Updating table values
+hbase(main):004:0> put 'student', '4', 'personel_data:address', 'Mumbai'
+0 row(s) in 0.0980 seconds
+
+hbase(main):005:0> scan 'student'
+ROW                                                   COLUMN+CELL                                                                                                                                                
+ 1                                                    column=personel_data: name, subject, marks, timestamp=1641798112937, value=Sam, Math, 78                                                                   
+ 2                                                    column=personel_data: name, subject, marks, timestamp=1641798200437, value=Emma, English, 86                                                               
+ 3                                                    column=personel_data: name, address, timestamp=1641806241959, value=Edward, Mumbai                                                                         
+ 4                                                    column=personel_data:address, timestamp=1641809762741, value=Mumbai                                                                                        
+4 row(s) in 0.0210 seconds
+
+hbase(main):006:0> put 'student', '4', 'personel_data:address', 'Delhi'
+0 row(s) in 0.0040 seconds
+
+hbase(main):007:0> scan 'student'
+ROW                                                   COLUMN+CELL                                                                                                                                                
+ 1                                                    column=personel_data: name, subject, marks, timestamp=1641798112937, value=Sam, Math, 78                                                                   
+ 2                                                    column=personel_data: name, subject, marks, timestamp=1641798200437, value=Emma, English, 86                                                               
+ 3                                                    column=personel_data: name, address, timestamp=1641806241959, value=Edward, Mumbai                                                                         
+ 4                                                    column=personel_data:address, timestamp=1641809782109, value=Delhi                                                                                         
+4 row(s) in 0.0170 seconds
+
+
+11. Truncate table
+hbase(main):001:0> scan 'emp'
+ROW                                                   COLUMN+CELL                                                                                                                                                
+ emma                                                 column=personel_data:age, timestamp=1641794253425, value=f                                                                                                 
+ emma                                                 column=personel_data:name, timestamp=1641794253425, value=21                                                                                               
+ richard                                              column=personel_data:age, timestamp=1641794253425, value=m                                                                                                 
+ richard                                              column=personel_data:name, timestamp=1641794253425, value=23                                                                                               
+ sam                                                  column=personel_data:age, timestamp=1641794253425, value=m                                                                                                 
+ sam                                                  column=personel_data:name, timestamp=1641794253425, value=24                                                                                               
+ susane                                               column=personel_data:age, timestamp=1641794253425, value=f                                                                                                 
+ susane                                               column=personel_data:name, timestamp=1641794253425, value=22                                                                                               
+4 row(s) in 0.7820 seconds
+
+hbase(main):002:0> truncate 'emp'
+Truncating 'emp' table (it may take a while):
+ - Disabling table...
+ - Truncating table...
+0 row(s) in 3.8440 seconds
+
+hbase(main):003:0> scan 'emp'
+ROW                                                   COLUMN+CELL                                                                                                                                                
+0 row(s) in 0.2380 seconds
+
+
+12. Altering table
+hbase(main):004:0> alter 'emp', {NAME=>'company_data', VERSIONS=>5}
+Updating all regions with the new schema...
+0/1 regions updated.
+1/1 regions updated.
+Done.
+0 row(s) in 3.2700 seconds
+
+hbase(main):005:0> describe 'emp'
+Table emp is ENABLED                                                                                                                                                                                             
+emp                                                                                                                                                                                                              
+COLUMN FAMILIES DESCRIPTION                                                                                                                                                                                      
+{NAME => 'company_data', BLOOMFILTER => 'ROW', VERSIONS => '5', IN_MEMORY => 'false', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER', COMPRESSION => 'NONE', MIN_VERSIONS => '0',
+ BLOCKCACHE => 'true', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}                                                                                                                                           
+{NAME => 'personel_data', BLOOMFILTER => 'ROW', VERSIONS => '1', IN_MEMORY => 'false', KEEP_DELETED_CELLS => 'FALSE', DATA_BLOCK_ENCODING => 'NONE', TTL => 'FOREVER', COMPRESSION => 'NONE', MIN_VERSIONS => '0'
+, BLOCKCACHE => 'true', BLOCKSIZE => '65536', REPLICATION_SCOPE => '0'}
